@@ -1,7 +1,7 @@
 import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
-from graf import Graph
+from graf import Graf
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="Google Maps Dynamic Simulator", layout="wide")
@@ -9,7 +9,7 @@ st.set_page_config(page_title="Google Maps Dynamic Simulator", layout="wide")
 # Menggunakan session_state agar objek Graph tetap bertahan saat UI berinteraksi
 if 'google_maps' not in st.session_state:
     # Inisialisasi Graph pertama kali
-    st.session_state.google_maps = Graph()
+    st.session_state.google_maps = Graf()
     
     # Seeder: Data Awal agar peta tidak kosong saat pertama dibuka
     g = st.session_state.google_maps
@@ -39,7 +39,7 @@ with st.sidebar:
     st.markdown("---")
     
     st.header("🛣️ Manajemen Edge (Jalan)")
-    vertices = map_engine.get_vertices()
+    vertices = map_engine.get_all_vertex()
     
     if len(vertices) >= 2:
         with st.form("form_edge"):
@@ -66,16 +66,16 @@ with col_map:
     
     # Mengonversi Data User-Defined ke NetworkX untuk Penggambaran
     G = nx.Graph()
-    for vertex in map_engine.get_vertices():
+    for vertex in map_engine.get_all_vertex():
         G.add_node(vertex)
     
-    for u, v, w in map_engine.get_all_edges():
+    for u, v, w in map_engine.get_all_vertex_with_weight():
         G.add_edge(u, v, weight=w)
     
     if len(G.nodes) > 0:
         fig, ax = plt.subplots(figsize=(10, 8))
         # Gunakan Spring Layout agar node menyebar secara dinamis
-        pos = nx.spring_layout(G, seed=42) 
+        pos = nx.spring_layout(G, seed=10)
         
         # Gambar Node & Label
         nx.draw(G, pos, with_labels=True, node_color="#3b82f6", node_size=2500, 
@@ -111,4 +111,3 @@ with col_nav:
 # --- FOOTER: DEBUGGING DATA ---
 with st.expander("📝 Log Struktur Data (Adjacency List)"):
     st.write(map_engine.adj_list)
-
